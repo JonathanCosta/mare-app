@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.wrangler/
+*.local
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+coverage/
+.nuxt/
+.cache/
+
+# OpenCode config (developer tools, not project files)
+.opencode/
+opencode.jsonc
+AGENTS.md
+
+# Docker dev environment
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+
