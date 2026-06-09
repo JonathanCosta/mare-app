@@ -21,4 +21,21 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
+# Cloudflare Worker (infraestrutura)
+wrangler.toml
+
+# Chaves criptográficas (VAPID, SSL, etc.)
+*.vapid.json
+*.key
+*.pem
+*.p12
+*.jks
+
+# IDEs (paths locais, configurações de debug)
+.vscode/
+.idea/
+
+# Backups exportados do app (dados de saúde)
+*.backup.json
+export-*.json
 
