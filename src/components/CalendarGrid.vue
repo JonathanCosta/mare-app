@@ -12,6 +12,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  periodDays: {
+    type: Array,
+    default: () => [],
+  },
   today: {
     type: String,
     default: '',
@@ -66,6 +70,7 @@ const grid = computed(() => {
 
     const registered = props.registeredDays.find(d => d.date === date)
     const isPredicted = props.predictedDays.includes(date)
+    const isPeriodDay = props.periodDays.includes(date)
     const isToday = date === props.today
 
     cells.push({
@@ -75,6 +80,7 @@ const grid = computed(() => {
       isToday,
       isRegistered: !!registered,
       isPredicted,
+      isPeriodDay,
       mood: registered ? registered.mood : null,
     })
   }
@@ -179,9 +185,9 @@ function navigate(direction) {
         :class="[
           cell.isCurrentMonth ? '' : 'opacity-30',
           cell.isToday ? 'bg-aqua-calm/20 ring-1 ring-aqua-calm' : '',
-          cell.isRegistered && cell.isCurrentMonth ? 'bg-coral-flow text-white' : '',
-          cell.isPredicted && !cell.isRegistered && cell.isCurrentMonth ? 'bg-coral-mist' : '',
-          !cell.isRegistered && !cell.isPredicted && cell.isCurrentMonth && !cell.isToday ? 'hover:bg-ocean-deep/5' : '',
+          cell.isPeriodDay && cell.isCurrentMonth ? 'bg-coral-flow text-white' : '',
+          cell.isPredicted && !cell.isPeriodDay && cell.isCurrentMonth ? 'bg-coral-mist' : '',
+          !cell.isPeriodDay && !cell.isPredicted && cell.isCurrentMonth && !cell.isToday ? 'hover:bg-ocean-deep/5' : '',
         ]"
       >
         <span class="text-sm font-medium leading-tight">{{ cell.dayNumber }}</span>

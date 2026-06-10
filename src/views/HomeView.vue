@@ -7,7 +7,7 @@ import CalendarGrid from '../components/CalendarGrid.vue'
 import BottomSheet from '../components/BottomSheet.vue'
 
 const router = useRouter()
-const { getSettings, getCycles } = useDatabase()
+const { getSettings, getCycles, autoCloseCycle, findActiveCycle } = useDatabase()
 const { getCurrentCycleInfo, getCycleDays } = useCycleLogic()
 
 const loading = ref(true)
@@ -64,8 +64,14 @@ const headerMessage = computed(() => {
 
 const registeredDays = computed(() => {
   return cycleDaysData.value
-    .filter(d => d.mood !== null)
-    .map(d => ({ date: d.date, mood: d.mood }))
+    .filter(d => d.mood !== null || d.is_period_day)
+    .map(d => ({ date: d.date, mood: d.mood, is_period_day: d.is_period_day }))
+})
+
+const periodDays = computed(() => {
+  return cycleDaysData.value
+    .filter(d => d.is_period_day)
+    .map(d => d.date)
 })
 
 const predictedDays = computed(() => {
@@ -99,7 +105,10 @@ const selectedDayMood = computed(() => {
 })
 
 const selectedDayMenstruation = computed(() => {
-  if (!selectedDate.value || !latestCycleData.value || !settingsData.value) return false
+  if (!selectedDate.value) return false
+  const dayData = cycleDaysData.value.find(d => d.date === selectedDate.value)
+  if (dayData?.is_period_day) return true
+  if (!latestCycleData.value || !settingsData.value) return false
   const cycleStart = new Date(latestCycleData.value.start_date + 'T12:00:00')
   const selected = new Date(selectedDate.value + 'T12:00:00')
   const diffDays = Math.floor((selected - cycleStart) / (1000 * 60 * 60 * 24))
@@ -123,6 +132,13 @@ onMounted(async () => {
     const cycleInfo = await getCurrentCycleInfo()
     if (cycleInfo) {
       currentCycle.value = cycleInfo
+
+      // Auto-close: verifica ciclo ativo ao abrir o app
+      const active = await findActiveCycle()
+      if (active) {
+        await autoCloseCycle(active.id)
+      }
+
       const days = await getCycleDays(cycleInfo.cycleId)
       cycleDaysData.value = days
     }
@@ -219,6 +235,7 @@ function startFirstLog() {
         :month="month"
         :registered-days="registeredDays"
         :predicted-days="predictedDays"
+        :period-days="periodDays"
         :today="today"
         @select-day="onSelectDay"
         @prev-month="onPrevMonth"

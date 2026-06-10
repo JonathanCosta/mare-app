@@ -100,7 +100,8 @@ export function useCycleLogic() {
         date: dateStr,
         dayNumber,
         mood: log ? log.mood : null,
-        had_sex: log ? log.had_sex : false
+        had_sex: log ? log.had_sex : false,
+        is_period_day: log ? !!log.is_period_day : false,
       })
 
       current.setDate(current.getDate() + 1)

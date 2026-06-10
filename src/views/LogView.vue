@@ -18,6 +18,7 @@ const logEntry = ref({
   cycle_id: null,
   had_sex: false,
   took_medication: false,
+  is_period_day: false,
   mood: null,
   notes: '',
 })
@@ -64,6 +65,7 @@ async function loadLog(date) {
       cycle_id: cycleId,
       had_sex: false,
       took_medication: false,
+      is_period_day: false,
       mood: null,
       notes: '',
     }
@@ -163,6 +165,15 @@ onMounted(() => {
           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
         >
           Medicação
+        </button>
+        <button
+          @click="toggleField('is_period_day')"
+          :class="logEntry.is_period_day
+            ? 'bg-coral-flow text-white shadow-sm'
+            : 'bg-ocean-deep/10 text-ocean-deep/60 hover:bg-ocean-deep/20'"
+          class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
+        >
+          Estou menstruada
         </button>
       </div>
     </section>
