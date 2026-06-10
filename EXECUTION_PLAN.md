@@ -12,7 +12,7 @@
 | 2 | Camada de Dados (Dexie) | ✅ | `@db` (skill:load cycle-prediction) | `db: schema Dexie + composables CRUD` |
 | 3 | App Shell & Navegação | ✅ | `@dev` + `@design` | `feat: App Shell + BottomNav + router` |
 | 4 | HomeView (Calendário) | ✅ | `@dev` + `@design` | `feat: HomeView com calendário e indicadores` |
-| 5 | LogView (Diário) | ⬜ | `@dev` + `@design` | `feat: LogView com auto-save e mood picker` |
+| 5 | LogView (Diário) | ✅ | `@dev` + `@design` | `feat: LogView com auto-save e mood picker` |
 | 6 | StatsView (Gráficos) | ⬜ | `@dev` + `@design` | `feat: StatsView com gráficos Chart.js` |
 | 7 | SettingsView & Backup | ⬜ | `@db` (skill:load backup-restore) + `@dev` | `feat: SettingsView + export/import dados` |
 | 8 | Cloudflare Worker | ⬜ | `@worker` (skill:load push-notification) | `worker: notificações push + D1 + cron` |
