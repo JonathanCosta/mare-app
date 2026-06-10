@@ -2,14 +2,24 @@
 import { ref, onMounted } from 'vue'
 import { useDatabase } from '../composables/useDatabase'
 import { useBackup } from '../composables/useBackup'
+import { usePushNotifications } from '../composables/usePushNotifications'
 
-const { getSettings, updateSettings } = useDatabase()
+const { getSettings, updateSettings, getCycles } = useDatabase()
 const { exportData, importData } = useBackup()
+const {
+  isSubscribed,
+  isSupported,
+  subscribeToPush,
+  unsubscribeFromPush,
+  checkSubscription,
+  updatePreferences,
+} = usePushNotifications()
 
 const settings = ref({
   average_cycle_length: 28,
   average_period_length: 5,
   push_enabled: false,
+  cycle_alert_enabled: false,
 })
 
 const fileInput = ref(null)
@@ -17,13 +27,102 @@ const fileInput = ref(null)
 onMounted(async () => {
   const saved = await getSettings()
   if (saved) settings.value = { ...settings.value, ...saved }
+  await checkSubscription()
 })
+
+/**
+ * Alterna o lembrete diário:
+ * - Se ativar → subscribe no navegador + Worker
+ * - Se desativar → unsubscribe
+ * Em ambos os casos, salva a preferência no banco local.
+ */
+async function toggleDailyReminder() {
+  const newValue = !settings.value.push_enabled
+
+  if (newValue) {
+    // Ativar notificações — só altera o toggle se o subscribe for bem-sucedido
+    const success = await subscribeToPush()
+    if (!success) return false // mantém toggle desligado se falhou
+    settings.value.push_enabled = true
+  } else {
+    // Desativar notificações
+    await unsubscribeFromPush()
+    settings.value.push_enabled = false
+  }
+
+  await updateSettings({
+    average_cycle_length: settings.value.average_cycle_length,
+    average_period_length: settings.value.average_period_length,
+    push_enabled: settings.value.push_enabled,
+    cycle_alert_enabled: settings.value.cycle_alert_enabled,
+  })
+}
+
+/**
+ * Alterna o alerta de ciclo:
+ * Calcula a data prevista e envia ao Worker.
+ */
+async function toggleCycleAlert() {
+  const newValue = !settings.value.cycle_alert_enabled
+
+  if (newValue) {
+    // Calcula a data de alerta (3 dias antes do próximo ciclo previsto)
+    const cycles = await getCycles()
+    let alertDate = null
+
+    if (cycles.length > 0) {
+      const lastCycle = cycles[0] // mais recente (ordenado por start_date desc)
+      if (lastCycle.predicted_next_start) {
+        const predictedDate = new Date(lastCycle.predicted_next_start)
+        predictedDate.setDate(predictedDate.getDate() - 3)
+        alertDate = predictedDate.toISOString().split('T')[0]
+      }
+    }
+
+    // Se já está inscrito, atualiza preferência com data
+    if (isSubscribed.value) {
+      await updatePreferences({
+        daily_reminder: settings.value.push_enabled,
+        next_cycle_alert_date: alertDate,
+      })
+    } else {
+      // Se não está inscrito, subscribe primeiro
+      const success = await subscribeToPush()
+      if (!success) return false // mantém toggle desligado se falhou
+      if (alertDate) {
+        await updatePreferences({
+          daily_reminder: settings.value.push_enabled,
+          next_cycle_alert_date: alertDate,
+        })
+      }
+    }
+
+    settings.value.cycle_alert_enabled = true
+  } else {
+    // Desativa alerta — atualiza preferência sem data
+    if (isSubscribed.value) {
+      await updatePreferences({
+        daily_reminder: settings.value.push_enabled,
+        next_cycle_alert_date: null,
+      })
+    }
+    settings.value.cycle_alert_enabled = false
+  }
+
+  await updateSettings({
+    average_cycle_length: settings.value.average_cycle_length,
+    average_period_length: settings.value.average_period_length,
+    push_enabled: settings.value.push_enabled,
+    cycle_alert_enabled: settings.value.cycle_alert_enabled,
+  })
+}
 
 async function handleUpdate() {
   await updateSettings({
     average_cycle_length: settings.value.average_cycle_length,
     average_period_length: settings.value.average_period_length,
     push_enabled: settings.value.push_enabled,
+    cycle_alert_enabled: settings.value.cycle_alert_enabled,
   })
 }
 
@@ -82,9 +181,10 @@ function triggerFileInput() {
       <div class="flex items-center justify-between py-3">
         <span class="text-ocean-deep">Lembrete diário</span>
         <button
-          @click="settings.push_enabled = !settings.push_enabled; handleUpdate()"
+          @click="toggleDailyReminder()"
           :class="settings.push_enabled ? 'bg-aqua-calm' : 'bg-ocean-deep/20'"
           class="relative w-12 h-7 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-aqua-calm/40"
+          :disabled="!isSupported"
         >
           <span
             :class="settings.push_enabled ? 'translate-x-6' : 'translate-x-1'"
@@ -92,20 +192,24 @@ function triggerFileInput() {
           />
         </button>
       </div>
+      <p v-if="!isSupported" class="text-ocean-deep/40 text-xs mt-1">
+        Push notifications não suportadas neste navegador
+      </p>
 
       <div class="flex items-center justify-between py-3">
         <span class="text-ocean-deep">Alerta de ciclo</span>
         <button
-          @click=""
-          class="relative w-12 h-7 rounded-full transition-colors duration-200 bg-ocean-deep/20 focus:outline-none focus:ring-2 focus:ring-aqua-calm/40 opacity-50"
-          disabled
+          @click="toggleCycleAlert()"
+          :class="settings.cycle_alert_enabled ? 'bg-aqua-calm' : 'bg-ocean-deep/20'"
+          class="relative w-12 h-7 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-aqua-calm/40"
+          :disabled="!isSupported"
         >
           <span
-            class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-sm"
+            :class="settings.cycle_alert_enabled ? 'translate-x-6' : 'translate-x-1'"
+            class="absolute top-1 left-0 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200"
           />
         </button>
       </div>
-      <p class="text-ocean-deep/40 text-xs mt-2">Disponível em breve</p>
     </section>
 
     <!-- Seção: Dados -->
