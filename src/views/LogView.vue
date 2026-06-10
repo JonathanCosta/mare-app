@@ -49,32 +49,40 @@ function showToast() {
 }
 
 async function loadLog(date) {
-  const existing = await getLog(date)
-  if (existing) {
-    logEntry.value = { ...existing }
-  } else {
-    const cycles = await getCycles()
-    let cycleId = null
-    if (cycles.length > 0) {
-      cycleId = cycles[0].id
+  try {
+    const existing = await getLog(date)
+    if (existing) {
+      logEntry.value = { ...existing }
     } else {
-      cycleId = await addCycle(date)
+      const cycles = await getCycles()
+      let cycleId = null
+      if (cycles.length > 0) {
+        cycleId = cycles[0].id
+      } else {
+        cycleId = await addCycle(date)
+      }
+      logEntry.value = {
+        date,
+        cycle_id: cycleId,
+        had_sex: false,
+        took_medication: false,
+        is_period_day: false,
+        mood: null,
+        notes: '',
+      }
     }
-    logEntry.value = {
-      date,
-      cycle_id: cycleId,
-      had_sex: false,
-      took_medication: false,
-      is_period_day: false,
-      mood: null,
-      notes: '',
-    }
+  } catch (err) {
+    console.error('[LogView] Erro ao carregar registro:', err)
   }
 }
 
 async function handleSave() {
-  await saveLog({ ...logEntry.value })
-  showToast()
+  try {
+    await saveLog({ ...logEntry.value })
+    showToast()
+  } catch (err) {
+    console.error('[LogView] Erro ao salvar:', err)
+  }
 }
 
 function toggleField(field) {
