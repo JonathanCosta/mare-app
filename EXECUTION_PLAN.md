@@ -16,7 +16,7 @@
 | 6 | StatsView (Gráficos) | ✅ | `@dev` + `@design` | `feat: StatsView com gráficos Chart.js` |
 | 7 | SettingsView & Backup | ✅ | `@db` (skill:load backup-restore) + `@dev` | `feat: SettingsView + export/import dados` |
 | 8 | Cloudflare Worker | ✅ | `@worker` (skill:load push-notification) | `worker: notificações push + D1 + cron` |
-| 9 | PWA Final & Offline | ⬜ | `@pwa` + `@design` | `pwa: manifest, SW, ícones e suporte offline` |
+| 9 | PWA Final & Offline | ✅ | `@pwa` + `@design` | `pwa: manifest, SW, ícones e suporte offline` |
 
 ---
 
