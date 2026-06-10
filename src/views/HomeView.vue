@@ -298,7 +298,7 @@ function startFirstLog() {
         </button>
       </div>
     </BottomSheet>
-  </main>
 
     <OnboardingModal :show="showOnboarding" @complete="handleOnboardingComplete" />
-  </template>
+  </main>
+</template>
