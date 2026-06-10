@@ -7,12 +7,12 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons/*.png', 'robots.txt'],
+      includeAssets: ['favicon.svg', 'icons/*.svg', 'icons/*.png', 'robots.txt'],
       manifest: {
         name: 'Maré - A vida em ciclos',
         short_name: 'Maré',
         description: 'Acompanhamento de ciclo menstrual com privacidade total',
-        theme_color: '#F8F6F2',
+        theme_color: '#7FA9A4',
         background_color: '#F8F6F2',
         display: 'standalone',
         orientation: 'portrait',
@@ -20,19 +20,28 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icons/icon-192.png',
+            src: '/icons/icon-192.svg',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/svg+xml',
+            purpose: 'any',
           },
           {
-            src: '/icons/icon-512.png',
+            src: '/icons/icon-512.svg',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/icons/icon-maskable.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
           },
         ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2}'],
+        navigateFallback: '/offline.html',
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com/,

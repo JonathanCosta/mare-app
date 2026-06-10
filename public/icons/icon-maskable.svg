@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8CB5B0"/>
+      <stop offset="100%" stop-color="#7FA9A4"/>
+    </linearGradient>
+  </defs>
+  <!-- Safe area background (80% of icon, centered) to avoid cropping -->
+  <rect width="512" height="512" fill="#F8F6F2"/>
+  <!-- Main circle inside safe area -->
+  <circle cx="256" cy="256" r="195" fill="url(#bg)" opacity="0.9"/>
+  <!-- Water drop -->
+  <path d="M256 120 Q310 175 310 220 Q310 280 256 340 Q202 280 202 220 Q202 175 256 120Z" fill="#F8F6F2" opacity="0.92"/>
+  <!-- Highlight on drop -->
+  <ellipse cx="238" cy="195" rx="18" ry="28" fill="#F8F6F2" opacity="0.5"/>
+</svg>

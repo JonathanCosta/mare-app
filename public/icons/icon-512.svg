@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8CB5B0"/>
+      <stop offset="100%" stop-color="#7FA9A4"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="235" fill="url(#bg)" opacity="0.9"/>
+  <!-- Water drop -->
+  <path d="M256 90 Q320 155 320 210 Q320 280 256 350 Q192 280 192 210 Q192 155 256 90Z" fill="#F8F6F2" opacity="0.92"/>
+  <!-- Highlight on drop -->
+  <ellipse cx="235" cy="185" rx="22" ry="34" fill="#F8F6F2" opacity="0.5"/>
+</svg>
