@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDatabase } from '../composables/useDatabase'
 
@@ -99,9 +99,12 @@ function onDateChange(e) {
   const newDate = e.target.value
   if (newDate) {
     selectedDate.value = newDate
-    loadLog(newDate)
   }
 }
+
+watch(selectedDate, (newDate) => {
+  loadLog(newDate)
+})
 
 onMounted(() => {
   const dateParam = route.query.date

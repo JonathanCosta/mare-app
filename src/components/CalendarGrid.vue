@@ -186,12 +186,13 @@ function navigate(direction) {
           cell.isCurrentMonth ? '' : 'opacity-30',
           cell.isToday ? 'bg-aqua-calm/20 ring-1 ring-aqua-calm' : '',
           cell.isPeriodDay && cell.isCurrentMonth ? 'bg-coral-flow text-white' : '',
-          cell.isPredicted && !cell.isPeriodDay && cell.isCurrentMonth ? 'bg-coral-mist' : '',
+          cell.isPredicted && !cell.isPeriodDay && cell.isCurrentMonth ? 'bg-coral-mist border-2 border-dashed border-coral-flow/30' : '',
           !cell.isPeriodDay && !cell.isPredicted && cell.isCurrentMonth && !cell.isToday ? 'hover:bg-ocean-deep/5' : '',
         ]"
       >
         <span class="text-sm font-medium leading-tight">{{ cell.dayNumber }}</span>
-        <span v-if="cell.mood" class="text-xs leading-tight mt-0.5">{{ moodEmojis[cell.mood] || '' }}</span>
+        <span v-if="cell.isPeriodDay" class="text-[10px] leading-tight">💧</span>
+        <span v-else-if="cell.mood" class="text-xs leading-tight mt-0.5">{{ moodEmojis[cell.mood] || '' }}</span>
       </div>
     </div>
   </div>

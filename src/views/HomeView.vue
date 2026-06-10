@@ -5,6 +5,7 @@ import { useDatabase } from '../composables/useDatabase'
 import { useCycleLogic } from '../composables/useCycleLogic'
 import CalendarGrid from '../components/CalendarGrid.vue'
 import BottomSheet from '../components/BottomSheet.vue'
+import OnboardingModal from '../components/OnboardingModal.vue'
 
 const router = useRouter()
 const { getSettings, getCycles, autoCloseCycle, findActiveCycle } = useDatabase()
@@ -19,11 +20,18 @@ const currentCycle = ref(null)
 const cycleDaysData = ref([])
 const settingsData = ref(null)
 const latestCycleData = ref(null)
+const onboardingComplete = ref(null)
 
 const selectedDate = ref(null)
 const sheetOpen = ref(false)
 
 const hasCycle = computed(() => !!currentCycle.value)
+
+const showOnboarding = computed(() => {
+  if (loading.value) return false
+  if (onboardingComplete.value === null) return false
+  return !onboardingComplete.value
+})
 
 const monthNames = [
   'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -107,12 +115,7 @@ const selectedDayMood = computed(() => {
 const selectedDayMenstruation = computed(() => {
   if (!selectedDate.value) return false
   const dayData = cycleDaysData.value.find(d => d.date === selectedDate.value)
-  if (dayData?.is_period_day) return true
-  if (!latestCycleData.value || !settingsData.value) return false
-  const cycleStart = new Date(latestCycleData.value.start_date + 'T12:00:00')
-  const selected = new Date(selectedDate.value + 'T12:00:00')
-  const diffDays = Math.floor((selected - cycleStart) / (1000 * 60 * 60 * 24))
-  return diffDays >= 0 && diffDays < settingsData.value.average_period_length
+  return dayData?.is_period_day ?? false
 })
 
 const formattedSelectedDate = computed(() => {
@@ -121,31 +124,46 @@ const formattedSelectedDate = computed(() => {
   return `${d.getDate()} de ${monthNames[d.getMonth()]} de ${d.getFullYear()}`
 })
 
+async function loadData() {
+  const settings = await getSettings()
+  settingsData.value = settings
+  onboardingComplete.value = !!settings?.onboarding_complete
+
+  const allCycles = await getCycles()
+  latestCycleData.value = allCycles[0] || null
+
+  const cycleInfo = await getCurrentCycleInfo()
+  if (cycleInfo) {
+    currentCycle.value = cycleInfo
+
+    const active = await findActiveCycle()
+    if (active) {
+      await autoCloseCycle(active.id)
+    }
+
+    const days = await getCycleDays(cycleInfo.cycleId)
+    cycleDaysData.value = days
+  } else {
+    currentCycle.value = null
+    cycleDaysData.value = []
+  }
+
+  loading.value = false
+}
+
 onMounted(async () => {
   try {
-    const settings = await getSettings()
-    settingsData.value = settings
-
-    const allCycles = await getCycles()
-    latestCycleData.value = allCycles[0] || null
-
-    const cycleInfo = await getCurrentCycleInfo()
-    if (cycleInfo) {
-      currentCycle.value = cycleInfo
-
-      // Auto-close: verifica ciclo ativo ao abrir o app
-      const active = await findActiveCycle()
-      if (active) {
-        await autoCloseCycle(active.id)
-      }
-
-      const days = await getCycleDays(cycleInfo.cycleId)
-      cycleDaysData.value = days
-    }
-  } finally {
+    await loadData()
+  } catch {
     loading.value = false
   }
 })
+
+async function handleOnboardingComplete() {
+  onboardingComplete.value = true
+  loading.value = true
+  await loadData()
+}
 
 function onPrevMonth() {
   if (month.value === 0) {
@@ -212,15 +230,15 @@ function startFirstLog() {
     >
       <div class="py-8 space-y-4">
         <div class="text-5xl mb-2">🌊</div>
-        <h2 class="text-xl font-semibold text-ocean-deep">Bem-vinda à Maré</h2>
+        <h2 class="text-xl font-semibold text-ocean-deep">Sua maré está vazia</h2>
         <p class="text-ocean-deep/60 text-sm max-w-xs mx-auto">
-          Acompanhe seu ciclo com privacidade total. Seus dados ficam apenas no seu dispositivo.
+          Registre seu primeiro dia de menstruação para começar a acompanhar seu ciclo.
         </p>
         <button
           @click="startFirstLog"
           class="mt-4 px-8 py-3 bg-aqua-calm text-white rounded-2xl font-medium shadow-sm hover:bg-aqua-calm/90 transition-colors duration-200"
         >
-          Começar
+          Primeiro registro
         </button>
       </div>
     </section>
@@ -281,4 +299,6 @@ function startFirstLog() {
       </div>
     </BottomSheet>
   </main>
-</template>
+
+    <OnboardingModal :show="showOnboarding" @complete="handleOnboardingComplete" />
+  </template>

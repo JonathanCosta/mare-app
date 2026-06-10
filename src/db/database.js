@@ -20,6 +20,7 @@ db.on('populate', () => {
     average_cycle_length: 28,
     average_period_length: 5,
     push_enabled: false,
+    onboarding_complete: false,
   })
 })
 

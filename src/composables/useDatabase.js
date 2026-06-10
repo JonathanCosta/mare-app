@@ -6,7 +6,8 @@ export function useDatabase() {
   }
 
   async function updateSettings(settings) {
-    await db.user_settings.put({ id: 'config', ...settings })
+    const existing = await getSettings() || {}
+    await db.user_settings.put({ id: 'config', ...existing, ...settings })
   }
 
   async function getCycles() {
