@@ -10,7 +10,7 @@
 |---|---------|--------|-------------|-------------------|
 | 1 | Scaffold do Projeto | ✅ | `@dev` (skill:load docker-setup) | `feat: scaffold Vite + Vue 3 + Tailwind + PWA` |
 | 2 | Camada de Dados (Dexie) | ✅ | `@db` (skill:load cycle-prediction) | `db: schema Dexie + composables CRUD` |
-| 3 | App Shell & Navegação | ⬜ | `@dev` + `@design` | `feat: App Shell + BottomNav + router` |
+| 3 | App Shell & Navegação | ✅ | `@dev` + `@design` | `feat: App Shell + BottomNav + router` |
 | 4 | HomeView (Calendário) | ⬜ | `@dev` + `@design` | `feat: HomeView com calendário e indicadores` |
 | 5 | LogView (Diário) | ⬜ | `@dev` + `@design` | `feat: LogView com auto-save e mood picker` |
 | 6 | StatsView (Gráficos) | ⬜ | `@dev` + `@design` | `feat: StatsView com gráficos Chart.js` |
