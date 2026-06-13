@@ -206,7 +206,7 @@ function startFirstLog() {
   <main class="p-4 pb-24 min-h-screen bg-sand-light">
     <!-- Header -->
     <header class="mb-6">
-      <h1 class="text-2xl font-bold text-ocean-deep">Maré</h1>
+      <img src="/logo-full.png" alt="Maré" class="h-12 w-auto" />
       <p class="text-ocean-deep/70 mt-1">
         {{ loading ? 'Carregando...' : headerMessage }}
       </p>
@@ -229,7 +229,7 @@ function startFirstLog() {
       class="bg-white/50 rounded-2xl p-8 shadow-sm text-center"
     >
       <div class="py-8 space-y-4">
-        <div class="text-5xl mb-2">🌊</div>
+        <img src="/logo-icon.png" alt="" class="mx-auto w-12 h-12" />
         <h2 class="text-xl font-semibold text-ocean-deep">Sua maré está vazia</h2>
         <p class="text-ocean-deep/60 text-sm max-w-xs mx-auto">
           Registre seu primeiro dia de menstruação para começar a acompanhar seu ciclo.

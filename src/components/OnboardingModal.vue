@@ -83,7 +83,7 @@ async function handleSave() {
           </div>
           <div class="px-6 pb-8">
             <div class="text-center mb-6">
-              <div class="text-4xl mb-2">🌊</div>
+              <img src="/logo-icon-64.png" alt="" class="mx-auto w-16 h-16" />
               <h2 class="text-xl font-bold text-ocean-deep">Bem-vinda à Maré</h2>
               <p class="text-ocean-deep/60 text-sm mt-1">
                 Vamos configurar seu ciclo para começar.
