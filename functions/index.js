@@ -20,6 +20,43 @@
 // ============================================================
 
 // ============================================================
+// Validação e Segurança
+// ============================================================
+
+const ALLOWED_PUSH_DOMAINS = [
+  'https://fcm.googleapis.com',
+  'https://push.apple.com',
+  'https://api.push.apple.com',
+  'https://updates.push.services.mozilla.com',
+  'https://push.services.mozilla.com',
+]
+
+function isValidPushEndpoint(endpoint) {
+  try {
+    const url = new URL(endpoint)
+    return ALLOWED_PUSH_DOMAINS.some(
+      allowed => url.origin === allowed || url.href.startsWith(allowed + '/')
+    )
+  } catch {
+    return false
+  }
+}
+
+const ALLOWED_ORIGINS = [
+  'https://jonathancosta.github.io',
+  'http://localhost:5173',
+  'http://localhost:4173',
+]
+
+function getCorsOrigin(request) {
+  const origin = request.headers.get('Origin')
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    return origin
+  }
+  return 'null'
+}
+
+// ============================================================
 // Helpers: base64url
 // ============================================================
 
@@ -291,7 +328,15 @@ async function handleSubscribe(request, env) {
     if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
       return new Response(JSON.stringify({ error: 'Invalid subscription: endpoint, p256dh, and auth are required' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
+      })
+    }
+
+    // Valida endpoint push (só aceita serviços oficiais)
+    if (!isValidPushEndpoint(subscription.endpoint)) {
+      return new Response(JSON.stringify({ error: 'Invalid push endpoint: not a recognized push service' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
       })
     }
 
@@ -312,12 +357,12 @@ async function handleSubscribe(request, env) {
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
     })
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
     })
   }
 }
@@ -333,7 +378,7 @@ async function handleUnsubscribe(request, env) {
     if (!endpoint) {
       return new Response(JSON.stringify({ error: 'endpoint is required' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
       })
     }
 
@@ -341,12 +386,12 @@ async function handleUnsubscribe(request, env) {
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
     })
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
     })
   }
 }
@@ -377,6 +422,12 @@ async function handleScheduled(event, env, ctx) {
   const resultsArray = results // results já é um array
 
   for (const sub of resultsArray) {
+    // Remove endpoints inválidos (push services não reconhecidos)
+    if (!isValidPushEndpoint(sub.endpoint)) {
+      await env.DB.prepare('DELETE FROM subscribers WHERE id = ?').bind(sub.id).run()
+      continue
+    }
+
     try {
       const isCycleAlert = sub.next_cycle_alert_date === today
 
@@ -429,10 +480,11 @@ export default {
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': getCorsOrigin(request),
           'Access-Control-Allow-Methods': 'POST, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
           'Access-Control-Max-Age': '86400',
+          'Vary': 'Origin',
         },
       })
     }
@@ -449,7 +501,7 @@ export default {
 
     return new Response(JSON.stringify({ error: 'Not found', routes: ['POST /subscribe', 'DELETE /unsubscribe'] }), {
       status: 404,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(request) },
     })
   },
 
