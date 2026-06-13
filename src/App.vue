@@ -5,7 +5,7 @@ import BottomNav from './components/BottomNav.vue'
 <template>
   <div class="min-h-screen bg-sand-light">
     <router-view v-slot="{ Component }">
-      <Transition name="fade" mode="out-in">
+      <Transition name="fade-slide" mode="out-in">
         <component :is="Component" />
       </Transition>
     </router-view>
@@ -14,13 +14,18 @@ import BottomNav from './components/BottomNav.vue'
 </template>
 
 <style>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.fade-slide-enter-from {
   opacity: 0;
+  transform: translateY(12px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
 }
 </style>

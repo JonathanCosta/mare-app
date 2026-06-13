@@ -163,7 +163,7 @@ function navigate(direction) {
     <!-- Grid do calendário -->
     <div
       ref="calendarRef"
-      class="grid grid-cols-7 gap-1"
+      class="grid grid-cols-7 gap-2"
       @touchstart="onTouchStart"
       @touchend="onTouchEnd"
     >

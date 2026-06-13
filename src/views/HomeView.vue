@@ -67,7 +67,7 @@ const headerMessage = computed(() => {
   if (info.daysUntilNext !== null && info.daysUntilNext <= 0) {
     return 'Menstruação prevista para hoje'
   }
-  return `Dia ${info.dayOfCycle} do ciclo`
+  return `Maré calma. Dia ${info.dayOfCycle} do ciclo`
 })
 
 const registeredDays = computed(() => {
