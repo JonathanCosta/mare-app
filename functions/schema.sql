@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS subscribers (
   id TEXT PRIMARY KEY,
-  endpoint TEXT NOT NULL,
+  endpoint TEXT NOT NULL UNIQUE,
   p256dh TEXT NOT NULL,
   auth TEXT NOT NULL,
   daily_reminder BOOLEAN DEFAULT 0,

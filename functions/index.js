@@ -295,17 +295,22 @@ async function handleSubscribe(request, env) {
       })
     }
 
-    const id = crypto.randomUUID()
     const { endpoint, keys } = subscription
+    const id = crypto.randomUUID()
     const dailyReminder = preferences?.daily_reminder ?? false
     const nextCycleAlert = preferences?.next_cycle_alert_date ?? null
 
     await env.DB.prepare(
-      `INSERT OR REPLACE INTO subscribers (id, endpoint, p256dh, auth, daily_reminder, next_cycle_alert_date)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO subscribers (id, endpoint, p256dh, auth, daily_reminder, next_cycle_alert_date)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(endpoint) DO UPDATE SET
+         p256dh = excluded.p256dh,
+         auth = excluded.auth,
+         daily_reminder = excluded.daily_reminder,
+         next_cycle_alert_date = excluded.next_cycle_alert_date`,
     ).bind(id, endpoint, keys.p256dh, keys.auth, dailyReminder, nextCycleAlert).run()
 
-    return new Response(JSON.stringify({ success: true, id }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     })
