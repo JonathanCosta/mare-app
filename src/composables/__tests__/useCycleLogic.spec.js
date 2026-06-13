@@ -158,8 +158,10 @@ describe('useCycleLogic — Lógica de previsão', () => {
 
     const days = await getCycleDays(1)
 
-    // Deve ter 5 dias (01 a 05)
-    expect(days).toHaveLength(5)
+    // Agora vai até hoje (end_date não limita mais o range)
+    const today = new Date().toISOString().split('T')[0]
+    expect(days.length).toBeGreaterThan(5)
+    expect(days[days.length - 1].date).toBe(today)
 
     // Dia 1: is_period_day true, mood 5
     expect(days[0]).toMatchObject({

@@ -84,7 +84,9 @@ export function useCycleLogic() {
     if (!cycle) return []
 
     const start = new Date(cycle.start_date)
-    const end = cycle.end_date ? new Date(cycle.end_date) : new Date()
+    // Vai até hoje mesmo se o ciclo foi fechado (autoCloseCycle)
+    // para não perder registros de humor/sintomas pós-menstruação
+    const end = new Date()
 
     // Preenche todos os dias do ciclo, mesmo os sem registro
     const days = []
