@@ -16,4 +16,13 @@ const router = createRouter({
   routes,
 })
 
+const savedRoute = sessionStorage.getItem('redirect')
+if (savedRoute) {
+  sessionStorage.removeItem('redirect')
+  const target = savedRoute.replace(import.meta.env.BASE_URL, '/')
+  if (target !== '/') {
+    router.isReady().then(() => router.replace(target))
+  }
+}
+
 export default router
