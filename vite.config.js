@@ -18,8 +18,8 @@ export default defineConfig({
         background_color: '#F8F6F2',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/mare-app/',
+        start_url: '/mare-app/',
         icons: [
           {
             src: '/icons/icon-192.png',
